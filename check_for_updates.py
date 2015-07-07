@@ -15,9 +15,13 @@ from dateutil import parser
 from datetime import datetime, timedelta
 from pprint import pprint
 from subprocess import call, check_call, check_output
+import socket
 
 
 def main(argv):
+    # get lock to avoid multiple simultaneous instances of this script
+    get_lock(os.path.basename(__file__))
+    
     if '--run-tests' in sys.argv:
         run_tests()
     else:
@@ -38,7 +42,7 @@ def main(argv):
             args.func(args)
         else:
             print(parser.format_help())
-    
+
 
 def git_init(args):
     args = normalize_args(args)
@@ -62,13 +66,13 @@ def update(args):
     db_dir = os.path.join(args.archive, ".db")
     
     if (not os.path.isdir(db_dir)):
-        print ("Creating JSON database folder: "+db_dir)
+        print("Creating JSON database folder: "+db_dir)
         os.mkdir(db_dir, mode=0o755)
     
     for book_id in os.listdir(args.archive):
         book_dir = os.path.join(args.archive, book_id)
         if (os.path.isdir(book_dir) and re.match("^\d+$", book_id)):
-            print ("Processing book: "+book_id)
+            print("Processing book: "+book_id)
             db_filename = db_dir+"/"+book_id+".json"
             db = load_data(db_filename)
             
@@ -91,7 +95,7 @@ def update(args):
             
             if (last_modified > previous_modified and last_modified > datetime.utcnow() - timedelta(seconds=60)):
                 # the last modified timestamp for the book has changed
-                print ("A change has occured in "+book_id)
+                print("A change has occured in "+book_id)
                 
                 db["last_modified"] = str(last_modified)
                 db["id"] = book_id
@@ -147,7 +151,7 @@ def update(args):
 
 def load_data(db_filename):
     if (not os.path.isfile(db_filename)):
-        print ("Creating "+db_filename)
+        print("Creating "+db_filename)
         with open(db_filename, 'w') as json_file:
             json.dump({}, json_file)
     
@@ -155,7 +159,7 @@ def load_data(db_filename):
         with open(db_filename) as json_file:
             data = json.load(json_file)
     except Exception as e:
-        print ("Warning: Could not read JSON: "+db_filename)
+        print("Warning: Could not read JSON: "+db_filename)
         data = {}
     
     return data
@@ -176,6 +180,20 @@ def normalize_args(args):
     if "git_url" in args and urlparse(args.git_url).scheme == "":
         args.git_url = os.path.normpath(args.git_url)
     return args
+
+
+def get_lock(process_name):
+    # http://stackoverflow.com/a/7758075/281065
+    if not(sys.platform == "linux" or sys.platform == "linux2"):
+        print("WARNING: trying to aquire lock on non-Linux system")
+    global lock_socket # Without this our lock gets garbage collected
+    lock_socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+    try:
+        lock_socket.bind('\0' + process_name)
+        print('I got the lock')
+    except socket.error:
+        print('lock exists')
+        sys.exit()
 
 
 def run_tests():
@@ -211,6 +229,9 @@ def run_tests():
     all_branches = all_branches.splitlines()
     new_branch_name = "test-branch-"+str(len(all_branches))
     check_call(["git", "checkout", "-b", new_branch_name], cwd=args.archive, timeout=60)
+    if not os.path.exists(os.path.join(args.archive, "001", "file.txt")):
+        with open(os.path.join(args.archive, "001", "file.txt"), 'a') as testfile:
+            testfile.write(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f UTC")+"\n")
     with open(os.path.join(args.archive, "001", "file.txt"), 'r+') as testfile:
         content = testfile.read()
         testfile.seek(0, 0)
