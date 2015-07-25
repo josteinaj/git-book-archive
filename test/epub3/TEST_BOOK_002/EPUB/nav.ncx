@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+    <head>
+        <meta name="dtb:uid" content="TEST_BOOK_002"/>
+        <meta name="dtb:depth" content="1"/>
+        <meta name="dtb:totalPageCount" content="1"/>
+        <meta name="dtb:maxPageNumber" content="1"/>
+    </head>
+    <docTitle>
+        <text>Table of Contents</text>
+    </docTitle>
+    <navMap>
+        <navLabel>
+            <text>Table of contents</text>
+        </navLabel>
+        <navPoint id="navPoint-1" playOrder="2">
+            <navLabel>
+                <text>Cover</text>
+            </navLabel>
+            <content src="TEST_BOOK_002-01-cover.xhtml#cover"/>
+            <navPoint id="navPoint-2" playOrder="2">
+                <navLabel>
+                    <text>Rear cover</text>
+                </navLabel>
+                <content src="TEST_BOOK_002-01-cover.xhtml#rearcover"/>
+            </navPoint>
+        </navPoint>
+        <navPoint id="navPoint-4" playOrder="4">
+            <navLabel>
+                <text>Test book 2</text>
+            </navLabel>
+            <content src="TEST_BOOK_002-02-chapter.xhtml#h1"/>
+        </navPoint>
+    </navMap>
+    <pageList>
+        <navLabel>
+            <text>List of pages</text>
+        </navLabel>
+        <pageTarget id="pageTarget-1" playOrder="3" type="normal">
+            <navLabel>
+                <text>1</text>
+            </navLabel>
+            <content src="TEST_BOOK_002-02-chapter.xhtml#page_1"/>
+        </pageTarget>
+    </pageList>
+</ncx>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-identifier" xmlns:dc="http://purl.org/dc/elements/1.1/" prefix="nordic: http://www.mtm.se/epub/" xmlns:dcterms="http://purl.org/dc/terms/">
+    <metadata>
+        <dc:identifier id="pub-identifier">TEST_BOOK_002</dc:identifier>
+        <dc:title>Test book 2</dc:title>
+        <dc:creator>Jostein Austvik Jacobsen</dc:creator>
+        <dc:language>en</dc:language>
+        <dc:source>urn:isbn:0</dc:source>
+        <dc:format>EPUB3</dc:format>
+        <dc:publisher>Jostein Austvik Jacobsen</dc:publisher>
+        <dc:date>2015-07-24</dc:date>
+        <meta property="dcterms:modified">2015-07-24T20:31:30Z</meta>
+        <meta name="dcterms:modified" content="2015-07-24T20:31:30Z"/>
+        <meta property="nordic:guidelines">2015-1</meta>
+        <meta name="nordic:guidelines" content="2015-1"/>
+        <meta property="nordic:supplier">Jostein Austvik Jacobsen</meta>
+        <meta name="nordic:supplier" content="Jostein Austvik Jacobsen"/>
+    </metadata>
+    <manifest>
+        <item id="item_1" media-type="application/x-dtbncx+xml" href="nav.ncx"/>
+        <item id="item_2" media-type="application/xhtml+xml" href="TEST_BOOK_002-01-cover.xhtml"/>
+        <item id="item_3" media-type="application/xhtml+xml" href="TEST_BOOK_002-02-chapter.xhtml"/>
+        <item id="item_4" media-type="application/xhtml+xml" href="nav.xhtml" properties="nav"/>
+    </manifest>
+    <spine toc="item_1">
+        <itemref id="itemref_1" idref="item_2" linear="no"/>
+        <itemref id="itemref_2" idref="item_3"/>
+    </spine>
+</package>
