@@ -30,8 +30,8 @@ def main(argv):
     # get lock to avoid multiple simultaneous instances of this script
     get_lock(os.path.basename(__file__))
     
-    if '--run-tests' in sys.argv:
-        run_tests('--forever' in sys.argv)
+    if '--run-tests' in argv:
+        run_tests("--forever" in argv)
     else:
         parser = argparse.ArgumentParser(description="Monitors a book archive and commits changes to git.")
         subparsers = parser.add_subparsers(title='subcommands', metavar="")
@@ -43,7 +43,7 @@ def main(argv):
         
         parser_init = subparsers.add_parser("git-init", help="Initialize archive from remote git repository.")
         parser_init.add_argument("archive", help="Path to the archive.", metavar="PATH")
-        parser_init.add_argument("git-url", help="Initialize the archive from this git repository.", metavar="URL")
+        parser_init.add_argument("git_url", help="Initialize the archive from this git repository.", metavar="URL")
         parser_init.set_defaults(func=git_init)
         
         args = parser.parse_args()
@@ -67,7 +67,7 @@ def git_init(args):
     if os.path.exists(gitignore_filepath):
         with open(gitignore_filepath) as f:
             gitignore = f.readlines()
-    if ".db/" not in gitignore:
+    if ".db/\n" not in gitignore:
         with open(gitignore_filepath, "a") as f:
             f.write("\n")
             f.write("# ignore database folder\n")
@@ -263,7 +263,7 @@ def modification_date(filename):
 
 def normalize_args(args):
     args.archive = os.path.normpath(args.archive)
-    if "git_url" in args and urlparse(args.git_url).scheme == "":
+    if "git-url" in args and urlparse(args.git_url).scheme == "":
         args.git_url = os.path.normpath(args.git_url)
     return args
 
@@ -295,32 +295,15 @@ def run_tests_iteration():
     args = init_test()
     if not os.path.exists(args.archive):
         git_init(args)
+    if not os.path.exists(os.path.join(args.archive, "daisy202", "TEST_BOOK_001")):
+        print("copying test books to archive...")
         
-        print("Checking if repository is empty (will give 'fatal: ambigous argument' error if empty)...")
-        empty_repo = call(["git", "rev-parse", "HEAD"], cwd=args.archive, timeout=60)
-        try:
-            git_log = check_output(["git", "--no-pager", "log", "--oneline", "-n", "10"], cwd=args.archive, universal_newlines=True, timeout=60)
-            git_log = git_log.splitlines()
-        except:
-            git_log = []
-        if empty_repo or len(git_log) == 1 and "gitignore" in git_log[0]:
-            print("--------------------------------")
-            print("  initializing test repository  ")
-            print("--------------------------------")
-            
-            shutil.copytree(os.path.join(os.path.dirname(os.path.realpath(__file__)), "test", "daisy202"), os.path.join(args.archive, "daisy202"))
-            shutil.copytree(os.path.join(os.path.dirname(os.path.realpath(__file__)), "test", "epub3"), os.path.join(args.archive, "epub3"))
-            with open(os.path.join(args.archive, ".gitignore"), 'w') as f:
-                f.write("\n")
-                f.write("# ignore database folder\n")
-                f.write(".db/\n")
-            
-            check_call(["git", "add", "-A"], cwd=args.archive, timeout=5)
-            check_call(["git", "commit", "-m", "initialized test repository"], cwd=args.archive, timeout=5)
-            check_call(["git", "push"], cwd=args.archive, timeout=5)
-        else:
-            print("")
-            print("test repository is not empty, will not initialize.")
+        shutil.copytree(os.path.join(os.path.dirname(os.path.realpath(__file__)), "test", "daisy202"), os.path.join(args.archive, "daisy202"))
+        shutil.copytree(os.path.join(os.path.dirname(os.path.realpath(__file__)), "test", "epub3"), os.path.join(args.archive, "epub3"))
+        
+        check_call(["git", "add", "-A"], cwd=args.archive, timeout=60)
+        check_call(["git", "commit", "-m", "copied test books to archive"], cwd=args.archive, timeout=60)
+        check_call(["git", "push"], cwd=args.archive, timeout=60)
     
     print("------------------------------")
     print("  make a branch with changes  ")
@@ -368,11 +351,11 @@ def run_tests_append_html(filepath):
 
 def init_test():
     tmp_parent = tempfile.gettempdir()
-    tmp_remote = os.path.join(tmp_parent, "archive-remote")
     tmp_local = os.path.join(tmp_parent, "archive-local")
-    assert os.path.isdir(tmp_remote) or not os.path.exists(tmp_remote) and os.path.isdir(tmp_parent), "Unable to create temporary remote: " + tmp_remote
+    tmp_remote = os.path.join(tmp_parent, "archive-remote")
     assert os.path.isdir(tmp_local) or not os.path.exists(tmp_local) and os.path.isdir(tmp_parent), "Unable to create temporary local: " + tmp_local
-    if not os.path.exists(tmp_remote):
+    assert os.path.isdir(tmp_remote) or not os.path.exists(tmp_remote) and os.path.isdir(tmp_parent), "Unable to create temporary remote: " + tmp_remote
+    if not os.path.exists(tmp_remote) and not os.path.exists(os.path.join(tmp_local, ".git")):
         os.mkdir(tmp_remote, mode=0o755)
         check_call(["git", "init", "--bare"], cwd=tmp_remote, timeout=5)
     args = argparse.Namespace()
