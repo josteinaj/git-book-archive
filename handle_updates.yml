@@ -1,0 +1,19 @@
+# This file defines the conversion paths between formats
+
+daisy202:
+    name: DAISY 2.02
+    conversions:
+        epub3:
+            - docker josteinaj/conversion-path-1
+            - docker josteinaj/conversion-path-2
+        pef: docker foo bar
+            - docker josteinaj/conversion-path-3
+
+epub3:
+    name: DAISY 2.02
+    conversions:
+        daisy202:
+            - docker josteinaj/conversion-path-4
+            - docker josteinaj/conversion-path-5
+        pef: docker foo bar
+            - docker josteinaj/conversion-path-6
