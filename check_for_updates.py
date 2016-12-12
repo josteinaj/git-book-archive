@@ -3,7 +3,9 @@
 
 # - Always ensure that the repository stays on the master branch; never change it
 # - Don't push to the remote master branch; only this script should be allowed to do that
-# - Push branches to remote and include `[archive merge]` or `[merge archive]` in the comment to merge the branch
+# - To edit files, either:
+#     - Edit the files in-place and this script will automatically commit the changes
+#     - Push branches to remote and include `[archive merge]` or `[merge archive]` in the comment to merge the branch (TODO: feature not needed?)
 
 import sys
 if sys.version_info[0] != 3:
